@@ -29,21 +29,21 @@ contract MsysERC20 is Initializable, ERC20Upgradeable, UUPSUpgradeable, OwnableU
         _mint(userAccount, amount);
     }
 
-    function _transferEx(address from,address to, uint256 amount,address caller) external {
+    function _transferEx(address from,address to, uint256 amount) external {
         emit log("event on _transferEx", msg.sender, admin);
-        require(admin == caller,"only owner can call this");
+        // require(admin == caller,"only owner can call this");
         _transfer(from, to, amount);
     }
 
-    function transferEx(address to, uint256 amount,address caller) external {
+    function transferEx(address to, uint256 amount) external {
         emit log("event on transferEx", msg.sender, admin);
-        require(admin == caller,"only owner can call this");
+        // require(admin == caller,"only owner can call this");
         transfer(to, amount);
     }
 
-    function _burnEx(address account, uint256 amount,address caller) external {
+    function _burnEx(address account, uint256 amount) external {
         emit log("event on _burnEx", msg.sender, admin);
-        require(admin == caller,"only owner can call this");
+        // require(admin == caller,"only owner can call this");
        _burn(account, amount);
     }
 

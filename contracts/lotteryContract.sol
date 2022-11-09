@@ -9,9 +9,9 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 interface IMsysERC20 is IERC20Upgradeable {
     function _mintEx(address account, uint256 amount,address caller) external;
-    function _transferEx(address from,address to, uint256 amount,address caller) external;
-    function transferEx(address account, uint256 amount,address caller) external;
-    function _burnEx(address account, uint256 amount,address caller) external;
+    function _transferEx(address from,address to, uint256 amount) external;
+    function transferEx(address account, uint256 amount) external;
+    function _burnEx(address account, uint256 amount) external;
 }
 
 contract LotteryContract is Initializable, UUPSUpgradeable, OwnableUpgradeable{
@@ -129,8 +129,8 @@ contract LotteryContract is Initializable, UUPSUpgradeable, OwnableUpgradeable{
                 uint lotteryAmount=lotteries[lotteryId].amount;
                 uint feesAmount=lotteryAmount/100;
                 uint finalLotteryAmount=lotteryAmount-feesAmount;
-                _token.transferEx(address(this), finalLotteryAmount,msg.sender);
-                _token._burnEx(msg.sender, feesAmount,msg.sender);
+                _token.transferEx(address(this), finalLotteryAmount);
+                _token._burnEx(msg.sender, feesAmount);
                 lotteryParticipants[lotteryId].push(msg.sender);
                 return true;
             }
@@ -178,9 +178,9 @@ contract LotteryContract is Initializable, UUPSUpgradeable, OwnableUpgradeable{
 
         //-------------------Transfer Amount------------------------
         
-            _token._transferEx(address(this), lotteryParticipants[lotteryId][index0], ((totalAmount/100)*50),msg.sender);
-            _token._transferEx(address(this), lotteryParticipants[lotteryId][index1], ((totalAmount/100)*30),msg.sender);
-            _token._transferEx(address(this), lotteryParticipants[lotteryId][index2], ((totalAmount/100)*20),msg.sender);
+            _token._transferEx(address(this), lotteryParticipants[lotteryId][index0], ((totalAmount/100)*50));
+            _token._transferEx(address(this), lotteryParticipants[lotteryId][index1], ((totalAmount/100)*30));
+            _token._transferEx(address(this), lotteryParticipants[lotteryId][index2], ((totalAmount/100)*20));
 
         lotteries[lotteryId].statusCode=3;
         lotteryAmountArray[lotteryId]=totalAmount;
