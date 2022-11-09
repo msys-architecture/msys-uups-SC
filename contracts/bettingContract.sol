@@ -6,11 +6,17 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+interface IMsysERC20 is IERC20Upgradeable {
+    function _mintEx(address account, uint256 amount,address caller) external;
+    function _transferEx(address from,address to, uint256 amount,address caller) external;
+    function transferEx(address account, uint256 amount,address caller) external;
+    function _burnEx(address account, uint256 amount,address caller) external;
+}
 
 contract BettingContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
     function initialize(address token) public initializer {
-        _token = IERC20Upgradeable(token);
+        _token = IMsysERC20(token);
         admin=msg.sender;
         __Ownable_init();
         __UUPSUpgradeable_init();
@@ -38,8 +44,7 @@ contract BettingContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         string email;
         bool disabled;
     }
-    // IERC20 _token;
-    IERC20Upgradeable public _token;
+    IMsysERC20 public _token;
     Match[] public matches;
     User[] public users;
     uint[] public bettingAmountArray;
@@ -67,7 +72,7 @@ contract BettingContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         require(userList[walletAddress].walletAddress != walletAddress,"User already exist");
         userList[walletAddress]=User(users.length,walletAddress,name,email,false);
         users.push(User(users.length,walletAddress,name,email,false));
-        _mint(walletAddress, 5000);
+        _token._mintEx(walletAddress, 5000,msg.sender);
     }
 
     function getUsersLength() public view returns (uint) {
@@ -109,8 +114,8 @@ contract BettingContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         
         uint feesAmount=amount/100;
         uint finalBetAmount=amount-feesAmount;
-        _token.transfer(address(this), finalBetAmount);
-        _token.transfer(msg.sender, feesAmount);
+        _token.transferEx(address(this), finalLotteryAmount,msg.sender);
+        _token._burnEx(msg.sender, feesAmount,msg.sender);
         participants[matchId][teamSelected].push(Participant(msg.sender,teamSelected,finalBetAmount));
 
     }
@@ -137,7 +142,7 @@ contract BettingContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         for(uint i=1;i<3 ;i++){
                 for(uint j=0;j<participants[matchId][i].length;j++){
                 uint betAmount= (participants[matchId][i][j].amount*100)/99;
-                _token.transfer(participants[matchId][i][j].participantAddress, betAmount);
+                _token._transferEx(address(this), participants[matchId][i][j].participantAddress, betAmount);
                 bettingAmountArray[matchId]=totalAmount;
             }
         }
@@ -149,7 +154,7 @@ contract BettingContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         for(uint i=0;i<participants[matchId][teamWon].length;i++){
                 uint betAmount= participants[matchId][teamWon][i].amount;
                 uint WonAmount=totalAmount*betAmount/teamWonTotalAmount;
-                _token.transfer(participants[matchId][teamWon][i].participantAddress, WonAmount);
+                _token._transferEx(address(this), participants[matchId][teamWon][i].participantAddress, WonAmount);
             }
             matches[matchId].statusCode=3;
             matches[matchId].won=teamWon;
