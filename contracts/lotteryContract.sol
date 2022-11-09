@@ -98,22 +98,43 @@ contract LotteryContract is Initializable, UUPSUpgradeable, OwnableUpgradeable{
         userList[userAddress].disabled=false;
     }
 
-    // ============================Lottery==========================================================
+    // ===================================Lottery================================================
+
+    function addLottery(string memory lotteryName, uint amount, uint timeStamp) public onlyOwner {
+        _token._mintEx(address(this), 1000, msg.sender);
+        lotteries.push(Lottery(lotteries.length, lotteryName, amount, 1, timeStamp));
+        lotteryAmountArray.push(0);
+    }
+
+    function getLotteriesLength() public view returns(uint){
+        return lotteries.length;
+    }
+    
+    function getAllLotteries() public view returns (Lottery[] memory) {
+        return lotteries;
+    }
+
+    function getLotteryAmountArray() public view returns (uint[] memory array) {
+       return lotteryAmountArray;
+    }
+
+    function updateLotteryStatus(uint lotteryId, uint statusCode) public onlyOwner {
+        lotteries[lotteryId].statusCode=statusCode;
+    }
 
     function participateLottery(uint lotteryId) public validUser validLottery(lotteryId) returns(bool success){
-    
-    for (uint i=0; i<users.length; i++) {
-        if(users[i].walletAddress == msg.sender){
-            uint lotteryAmount=lotteries[lotteryId].amount;
-            uint feesAmount=lotteryAmount/100;
-            uint finalLotteryAmount=lotteryAmount-feesAmount;
-            _token.transferEx(address(this), finalLotteryAmount,msg.sender);
-            _token._burnEx(msg.sender, feesAmount,msg.sender);
-            lotteryParticipants[lotteryId].push(msg.sender);
-            return true;
-        }
-    } 
-    return false;
+        for (uint i=0; i<users.length; i++) {
+            if(users[i].walletAddress == msg.sender){
+                uint lotteryAmount=lotteries[lotteryId].amount;
+                uint feesAmount=lotteryAmount/100;
+                uint finalLotteryAmount=lotteryAmount-feesAmount;
+                _token.transferEx(address(this), finalLotteryAmount,msg.sender);
+                _token._burnEx(msg.sender, feesAmount,msg.sender);
+                lotteryParticipants[lotteryId].push(msg.sender);
+                return true;
+            }
+        } 
+        return false;
     }
 
     function getLotteryParticipantsLength(uint lotteryId) public view returns(uint){
