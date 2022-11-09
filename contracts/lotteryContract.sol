@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Author: Sanjay Singh
 pragma solidity >= 0.5.0 < 0.9.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
