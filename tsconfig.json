@@ -7,6 +7,6 @@
     "strict": true,
     "skipLibCheck": true,
   },
-  "include": ["./scripts"],//only the "scripts" part.
+  "include": ["./scripts", "../extra-smartContracts/deploy.ts", "../extra-smartContracts/deployV1.ts", "../extra-smartContracts/upgradeV1.ts"],//only the "scripts" part.
   "files": ["./hardhat.config.ts"]
 }
